@@ -27,13 +27,22 @@ const DIALOGFLOW_PROJECT_ID = 'botwhatsapp-453622';
 
 // Función para obtener el token de acceso de Google
 async function getAccessToken() {
-    const auth = new GoogleAuth({
-        keyFile: './dialogflow-key.json',
-        scopes: ['https://www.googleapis.com/auth/dialogflow']
-    });
-    const client = await auth.getClient();
-    const token = await client.getAccessToken();
-    return token.token;
+    try {
+        const credentials = process.env.DIALOGFLOW_CREDENTIALS 
+            ? JSON.parse(process.env.DIALOGFLOW_CREDENTIALS)
+            : require('./dialogflow-key.json');
+
+        const auth = new GoogleAuth({
+            credentials,
+            scopes: ['https://www.googleapis.com/auth/dialogflow']
+        });
+        const client = await auth.getClient();
+        const token = await client.getAccessToken();
+        return token.token;
+    } catch (error) {
+        console.error('Error al obtener el token:', error);
+        throw error;
+    }
 }
 
 // Función para obtener respuesta de Dialogflow
